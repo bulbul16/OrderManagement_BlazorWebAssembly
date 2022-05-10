@@ -1,0 +1,97 @@
+﻿@page "/supplierCreate"
+@page "/supplierCreate/{id:int}"
+@inject ISupplierService SupplierService
+
+@if (Id == null)
+{
+    <PageTitle>Create a new Supplier</PageTitle>
+    <h3>Create a new Supplier</h3>
+}
+else
+{
+    <PageTitle>Edit @supplier.SupplierName</PageTitle>
+    <h3>Edit @supplier.SupplierName</h3>
+}
+
+<EditForm Model="supplier" OnSubmit="HandleSubmit">
+    <div>
+        <label for="supplierName">Supplier Name</label>
+        <InputText id="supplierName" @bind-Value="supplier.SupplierName" class="form-control"></InputText>
+    </div>
+    <div>
+        <label for="addressLine1">Address Line 1</label>
+        <InputText id="addressLine1" @bind-Value="supplier.AddressLine1" class="form-control"></InputText>
+    </div>
+    <div>
+        <label for="addressLine1">Address Line 2</label>
+        <InputText id="addressLine2" @bind-Value="supplier.AddressLine2" class="form-control"></InputText>
+    </div>
+    <div>
+        <label for="city">City</label>
+        <InputText id="city" @bind-Value="supplier.City" class="form-control"></InputText>
+    </div>
+
+    <div>
+        <label for="state">State</label>
+        <InputSelect id="city" @bind-Value="supplier.StateId" class="form-select">
+            @foreach(var state in SupplierService.States)
+            {
+                <option value="@state.Id">@state.Name</option>
+            }
+        </InputSelect>
+    </div>
+
+    <div>
+        <label for="postalCode">Postal Code</label>
+        <InputText id="postalCode" @bind-Value="supplier.PostalCode" class="form-control"></InputText>
+    </div>
+    <br/>
+    <button type="submit" class="btn btn-primary">@submitBtnText</button>
+    <button type="button" class="btn btn-danger" @onclick="DeleteSupplier">Delete Supplier</button>
+</EditForm>
+
+
+@code {
+    [Parameter]
+    public int? Id { get; set; }
+
+    string submitBtnText = string.Empty;
+
+    Supplier supplier = new Supplier { State = new State() };
+
+    protected override async Task OnInitializedAsync()
+    {
+        submitBtnText = Id == null ? "Create new Supplier" : "Update Supplier";
+        await SupplierService.GetSatesAsync();
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (Id == null)
+        {
+            supplier.State = SupplierService.States[0];
+            supplier.StateId = supplier.State.Id;
+        }
+        else
+        {
+            supplier = await SupplierService.GetSupplierAsync((int)Id);
+        }
+    }
+
+    async Task HandleSubmit()
+    {
+        if (Id == null)
+        {
+            await SupplierService.CreateSupplierAsync(supplier);
+        }
+        else
+        {
+            await SupplierService.UpdateSupplierAsync(supplier);
+        }
+    }
+
+    async Task DeleteSupplier()
+    {
+        await SupplierService.DeleteSupplierAsync(supplier.Id);
+    }
+}

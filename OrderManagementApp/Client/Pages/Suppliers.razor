@@ -1,0 +1,60 @@
+﻿@page "/suppliers"
+@inject ISupplierService SupplierService
+@inject NavigationManager NavigationManager
+
+<PageTitle>Suppliers</PageTitle>
+
+<h3>Suppliers</h3>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Id</th>
+            <th>Name</th>
+            <th>Address Line 1</th>
+            <th>Address Line 2</th>
+            <th>City</th>
+            <th>State</th>
+            <th>Postal Code</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach(var supplier in SupplierService.Suppliers)
+        {
+            <tr>
+                <td>@supplier.Id</td>
+                <td>@supplier.SupplierName</td>
+                <td>@supplier.AddressLine1</td>
+                <td>@supplier.AddressLine2</td>
+                <td>@supplier.City</td>
+                <td>@supplier.State.Name</td>
+                <td>@supplier.PostalCode</td>
+                <td>
+                    <button class="btn btn-primary" @onclick="( ()=> ShowSupplier(supplier.Id))">
+                        <i class="oi oi-pencil"></i>
+                    </button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<button class="btn btn-primary" @onclick="CreateNewSupplier">Create New Supplier</button>
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        await SupplierService.GetSuppliersAsync();
+    }
+
+    void ShowSupplier(int id)
+    {
+        NavigationManager.NavigateTo($"supplierCreate/{id}");
+    }
+
+    void CreateNewSupplier()
+    {
+        NavigationManager.NavigateTo("/supplierCreate");
+    }
+}
